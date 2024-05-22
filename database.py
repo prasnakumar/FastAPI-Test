@@ -1,12 +1,14 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 
 
-
-SQLALCHEMY_DATABASE_URL = "postgresql://prasanna:123@localhost:5432/fast_api"
+SQLALCHEMY_DATABASE_URL = os.environ.get("DATABASE_URL")
 Base = declarative_base()
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
