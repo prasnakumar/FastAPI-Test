@@ -1,15 +1,18 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 from app import models, schemas
 
-async def create_user(db: Session, user: schemas.UserDetailCreate):
-    db_user = models.User(**user.dict())
+async def create_user(db: AsyncSession, user: schemas.UserDetailCreate):
+    db_user = models.UserDetail(**user.dict())
     db.add(db_user)
     await db.commit()
     await db.refresh(db_user)
     return db_user
 
-async def get_user(db: Session, user_id: int):
-    return await db.query(models.UserDetail).filter(models.User.id == user_id).first()
+async def get_user(db: AsyncSession, user_id: int):
+    result = await db.execute(select(models.UserDetail).filter(models.UserDetail.id == user_id))
+    return result.scalars().first()
 
-async def get_users(db: Session, skip: int = 0, limit: int = 10):
-    return await db.query(models.UserDetail).offset(skip).limit(limit).all()
+async def get_users(db: AsyncSession, skip: int = 0):
+    result = await db.execute(select(models.UserDetail).offset(skip))
+    return result.scalars().all()
