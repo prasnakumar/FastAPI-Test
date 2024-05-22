@@ -1,16 +1,15 @@
 from sqlalchemy.orm import Session
-from app.models import user_model
-from app.schemas import UserDetailCreate
+from app import models, schemas
 
-def create_user(db: Session, user: UserDetailCreate):
-    db_user = user_model.UserDetail(username=user.username, email=user.email, full_name=user.full_name)
+async def create_user(db: Session, user: schemas.UserCreate):
+    db_user = models.User(**user.dict())
     db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
+    await db.commit()
+    await db.refresh(db_user)
     return db_user
 
-def get_users(db: Session):
-    return db.query(user_model.UserDetail).all()
+async def get_user(db: Session, user_id: int):
+    return await db.query(models.User).filter(models.User.id == user_id).first()
 
-def get_user(db: Session, user_id: int):
-    return db.query(user_model).filter(user_model.id == user_id).first()
+async def get_users(db: Session, skip: int = 0, limit: int = 10):
+    return await db.query(models.User).offset(skip).limit(limit).all()
